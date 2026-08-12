@@ -113,6 +113,9 @@ string handleCalls(vector <string> statement) {
     if (name == "getval") {
         code << callCode(name, value);
     }
+    else if (name == "write") {
+        code << callCode(name, value);
+    }
     //handle exit
     else if (name == "exit") {
         code << callCode(name, value);
@@ -125,7 +128,8 @@ string callCode(string name, string value) {
     stringstream code;
 
     if (name == "getval") {
-        //check if its a number (we want variables/strings)
+        //gets the desired variable to the top of the stack
+
         for (size_t i = 0; i < value.size(); i++) {
             if (!isalpha(value[i])) {
                 cerr << "need a variable to get" << endl;
@@ -144,24 +148,60 @@ string callCode(string name, string value) {
         int offset = (posRev-1)*8; //calculates the bytes for the needed rsp offset
 
         code << "    mov rax, [rsp + " << offset << "]\n";
+        code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
     }
 
     else if (name == "exit") {
+        //exits
         string errNr = value;
+
+        bool isVar = false;
+        bool isDigit = true;
 
         for (size_t i = 0; i < errNr.size(); i++) {
             if (!isdigit(errNr[i])) {
-                // cerr << "need a number" << endl;
-                // return "";
-                if (varMap[errNr]) { //if its a variable name
-                    //load from rax (assume the user called "getval")
-                }
+                isDigit = false;
+                break;
             }
+        }
+        if (varMap[errNr]) { //if its a variable name
+            isVar = true;
+        }
+
+        if (!isVar && !isDigit) {
+            cerr << "unknown identifier" << endl;
+            return "";
+        }
+
+        if (isVar) {
+            code << "    pop rdi\n";
+        }
+        else if (isDigit) {
+            code << "    mov rdi, " << errNr << "\n";
         }
 
         code << "    mov rax, 60\n";
-        code << "    mov rdi, " << errNr << "\n";
-        code << "    syscall";
+        code << "    syscall\n";
+
+    }
+
+    else if (name == "write") {
+        //fuck
+        //no distinction between chars and varNames yet, for now only var names
+
+        if (varMap[value] || value.empty()) {
+            code << "    mov rsi, rsp\n";
+        }
+
+        code << "    mov rax, 1\n";
+        code << "    mov rdi, 1\n";
+        code << "    mov rdx, 1\n"; //lenght;
+        code << "    syscall\n";
+
+        //putting a newline
+        code << "    push 10\n";
+        code << "    mov rsi, rsp\n";
+        code << "    syscall\n";
     }
 
     return code.str();

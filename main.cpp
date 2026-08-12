@@ -73,5 +73,5 @@ int main() {
     return 0;
 }
 
-// To recap: so far this does about fuckall. I'll put the code in different files
-// after i sleep to not make an even bigger mess.
+//shits all over the place, need to rewrite everything. straight up looks like im
+//trying to hardcode a compiler
