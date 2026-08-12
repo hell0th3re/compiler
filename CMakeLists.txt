@@ -4,4 +4,8 @@ project(untitled)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(untitled main.cpp
+        parser.cpp
+        parser.h
+        codeGen.cpp
+        codeGen.h
 )

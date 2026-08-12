@@ -1,1 +1,4 @@
-exit 21;
+let a = 5 : int;
+let b = c : char;
+call getval a;
+call exit a;
