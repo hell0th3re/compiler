@@ -1,5 +1,5 @@
-let a = 92 : int;
-let b = c : char;
+let a = 5 : int;
+let b = 'c' : char;
+call write 's';
 call getval a;
-call write a;
-call exit 21;
+call exit a;

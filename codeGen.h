@@ -19,6 +19,10 @@ struct chars {
     char value;
 };
 
+int getIndexOf(vector <string> vec, string s);
+bool isChar(string s);
+bool isNumber(string s);
+
 string handleVars(vector <string> statement);
 string varCode(variant<ints, chars> userVar);
 

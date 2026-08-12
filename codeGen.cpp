@@ -32,14 +32,47 @@ int varCount = 0; //will be useful to determine the declared vars position in th
 map<string, int> varMap;
 map<string, int> varMapRev;
 
+int getIndexOf(vector <string> vec, string s) {
+    int index = 0;
+    for (size_t i = 0; i < vec.size(); i++) {
+        if (vec[i] == s) {
+            index = i;
+        }
+    }
+    return index;
+}
+
+bool isChar(string s) {
+    if (s.empty()) {
+        cerr << "empty" << endl;
+        return false;
+    }
+
+    if (s[0] == '\'' && s[2] == '\'') {
+        return true;
+    }
+
+    return false;
+}
+
+bool isNumber(string s) {
+
+    for (size_t i = 0; i < s.size(); i++) {
+        if (!isdigit(s[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 string handleVars(vector <string> statement) {
     //syntax: let name = value : type;
     string code;
     varCount++;
 
-    string name = statement[1];
-    string value = statement[3];
-    string typeStr = statement[5];
+    string name = statement[1]; //name needs to come right after "let"
+    string value = statement[ getIndexOf(statement,"=") + 1 ]; //element after '='
+    string typeStr = statement[statement.size() - 1]; //type need to be the last element
 
     typeStr.pop_back(); //remove semi
 
@@ -66,8 +99,15 @@ string handleVars(vector <string> statement) {
     }
 
     if (typeStr == "char") {
-        char valueConv = value[0]; //implicit conversion from string to char (in my lang not c++)
+        //char valueConv = value[0]; //implicit conversion from string to char (in my lang not c++)
+        if (!isChar(value)) {
+            cerr << "invalid syntax" << endl;
+            return "";
+        }
+
+        char valueConv = value[1];
         chars userVar(name, valueConv);
+        varCode(userVar);
         code += varCode(userVar);
 
         return code;
@@ -79,6 +119,7 @@ string handleVars(vector <string> statement) {
 
 string varCode(variant <ints, chars> userVar) {
     stringstream codeOut;
+
     if (holds_alternative<ints>(userVar)) {
         ints getStruct = get<ints>(userVar);
         varMap.insert({getStruct.name, varCount});
@@ -100,17 +141,25 @@ string varCode(variant <ints, chars> userVar) {
 string handleCalls(vector <string> statement) {
     stringstream code;
 
+    string value = "";
     string name = statement[1];
-    string value = statement[2];
-    value.pop_back();
 
-    if (value.empty()) {
-        cerr << "invalid syntax" << endl;
-        return "";
+    if (statement.size() > 2) {
+        value = statement[2];
+        value.pop_back();
     }
+    else {
+        name.pop_back();
+    }
+
 
     //handle getval
     if (name == "getval") {
+        if (value.empty()) {
+            cerr << "invalid syntax" << endl;
+            return "";
+        }
+
         code << callCode(name, value);
     }
     else if (name == "write") {
@@ -118,6 +167,11 @@ string handleCalls(vector <string> statement) {
     }
     //handle exit
     else if (name == "exit") {
+        if (value.empty()) {
+            cerr << "invalid syntax" << endl;
+            return "";
+        }
+
         code << callCode(name, value);
     }
 
@@ -138,6 +192,7 @@ string callCode(string name, string value) {
         }
 
         varMapRev = varMap;
+
         for (auto &[name, value] : varMapRev) {
             value = varMapRev.size() - value + 1;
         }
@@ -153,17 +208,12 @@ string callCode(string name, string value) {
 
     else if (name == "exit") {
         //exits
+        //add the getval a; exit; thing like with write;
         string errNr = value;
 
         bool isVar = false;
         bool isDigit = true;
 
-        for (size_t i = 0; i < errNr.size(); i++) {
-            if (!isdigit(errNr[i])) {
-                isDigit = false;
-                break;
-            }
-        }
         if (varMap[errNr]) { //if its a variable name
             isVar = true;
         }
@@ -182,16 +232,35 @@ string callCode(string name, string value) {
 
         code << "    mov rax, 60\n";
         code << "    syscall\n";
-
     }
 
     else if (name == "write") {
-        //fuck
-        //no distinction between chars and varNames yet, for now only var names
 
         if (varMap[value] || value.empty()) {
             code << "    mov rsi, rsp\n";
         }
+        else if (isNumber(value)) {
+            int asciVal = stoi(value);
+
+            code << "    push " << asciVal << "\n";
+            code << "    mov rsi, rsp\n";
+            code << "    pop rax\n";
+        }
+        else if (isChar(value)) {
+            char chContents = value[1];
+            int asciConv = chContents;
+
+            code << "    push " << asciConv << "\n";
+            code << "    mov rsi, rsp\n";
+            code << "    pop rax\n";
+            //code << "    mov rsi, [rax]\n";
+        }
+
+        else {
+            cerr << "number or var name required" << endl;
+            return "";
+        }
+
 
         code << "    mov rax, 1\n";
         code << "    mov rdi, 1\n";

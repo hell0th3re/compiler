@@ -73,5 +73,4 @@ int main() {
     return 0;
 }
 
-//shits all over the place, need to rewrite everything. straight up looks like im
-//trying to hardcode a compiler
+//
