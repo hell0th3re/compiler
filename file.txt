@@ -1,9 +1,15 @@
-let l = 'd' : char;
+let l = 21 : int;
 let b = 'c' : char;
+let m = 'f' : char;
 let h = 3 : int;
+
 call getval b;
 call write;
-call getval l;
+
+call getval m;
 call write;
-call getval h;
+
+call write 't';
+
+call getval l;
 call exit;
