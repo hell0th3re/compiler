@@ -169,6 +169,11 @@ string handleCalls(vector <string> statement) {
         code << callCode(name, value);
     }
 
+    //hadle int -> char conversion
+    else if (name == "toChar") {
+        code << callCode(name, value);
+    }
+
     return code.str();
 }
 
@@ -176,26 +181,23 @@ string handleCalls(vector <string> statement) {
 string callCode(string name, string value) {
     stringstream code;
 
+    //pushes the variable to the top of the stack. Arg(var_name)
     if (name == "getval") {
         code << getVal(value); //"value" here cooresponds to the variable name
     }
 
+    //writes to the console. Arg(<var_name, char>)
     else if (name == "write") {
-        //writes to the console
         code << write(value);
+    }
 
-        //putting a newline
-        code << "    mov rax, 1\n";
-        code << "    mov rdi, 1\n";
-        code << "    mov rdx, 1\n";
-
+    //converts the variable from the top of the stack to type : char
+    else if (name == "toChar") {
+        code << toChar(); //args to do later
     }
 
     else if (name == "exit") {
-
-        code << "    pop rdi\n";
-        code << "    mov rax, 60\n";
-        code << "    syscall\n";
+        code << exit(value);
     }
 
     return code.str();
@@ -224,12 +226,6 @@ string write(string value) {
     stringstream code;
 
     if (value.empty()){
-        code << "    mov rsi, rsp\n";
-    }
-    else if (isNumber(value)) {
-        int asciVal = stoi(value);
-
-        code << "    push " << asciVal << "\n";
         code << "    mov rsi, rsp\n";
     }
     else if (isChar(value)) {
@@ -262,3 +258,38 @@ string write(string value) {
     return code.str();
 }
 
+//explicit conversion from int to char
+//takes from the stack, adds 48 and puts it on the stack
+string toChar() {
+    stringstream code;
+    code << "    pop rax\n";
+    code << "    add rax, 48\n";
+    code << "    push rax\n";
+
+    return code.str();
+}
+
+string exit(string value) {
+    stringstream code;
+
+    if (value.empty()){
+        code << "    pop rdi\n";
+    }
+    else if (varMap.contains(value)) {
+        code << getVal(value);
+        code << "    pop rdi\n";
+    }
+    else if (isNumber(value)) {
+        code << "    push " << value << "\n";
+        code << "    pop rdi\n";
+    }
+    else {
+        cerr << "number or var name required" << endl;
+        return "";
+    }
+
+    code << "    mov rax, 60\n";
+    code << "    syscall\n";
+
+    return code.str();
+}

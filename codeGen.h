@@ -31,6 +31,8 @@ string callCode(string name, string value);
 
 string getVal(string name);
 string write(string value);
+string toChar();
+string exit(string value);
 
 #endif //UNTITLED_CODEGEN_H
 

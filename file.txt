@@ -1,18 +1,13 @@
-call write 'h';
-call write 'e';
-call write 'l';
-call write 'l';
-call write 'o';
+let e = 4 :int;
 
-call write ' ';
+let cha = 'l' :char;
+let a = 1 :int;
+let b = 2 :int;
+let c = 3 :int;
 
-call write 'w';
-call write 'o';
-call write 'r';
-call write 'l';
-call write 'd';
-call write '!';
 
+call write cha;
 call write nl;
 
-call exit 0;
+call getval e;
+call exit;
