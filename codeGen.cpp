@@ -215,6 +215,12 @@ string getVal(string value) {
 }
 
 string write(string value) {
+    //maybe an optional "nl" parameter at the end?
+    //it would make even more sense for the syntax to be smth like:
+    //"call write 'c', nl" because then things like call "write 'c', 'd';" would make sense as well
+    //but that introduces the issue of an undefined number of parameters
+    //so ill probably do that when im implementing functions and "write" will just be a built in function
+
     stringstream code;
 
     if (value.empty()){
@@ -237,7 +243,11 @@ string write(string value) {
         code << "    push 10\n";
         code << "    mov rsi, rsp\n";
     }
+    else if (varMap.contains(value)) {
+        code << getVal(value);
+        code << "    mov rsi, rsp\n";
 
+    }
     else {
         cerr << "number or var name required" << endl;
         return "";

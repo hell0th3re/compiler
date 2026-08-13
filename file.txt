@@ -1,11 +1,18 @@
-call write 't';
+call write 'h';
+call write 'e';
+call write 'l';
+call write 'l';
+call write 'o';
+
 call write ' ';
-call write 's';
-call write nl;
-call write 'a';
+
+call write 'w';
+call write 'o';
+call write 'r';
+call write 'l';
+call write 'd';
+call write '!';
+
 call write nl;
 
-let a = 5 : int;
-
-getval a;
-call exit;
+call exit 0;

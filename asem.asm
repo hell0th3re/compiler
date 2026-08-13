@@ -1,6 +1,46 @@
 global _start
 _start:
-    push 116
+    push 104
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 101
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 108
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 108
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 111
     mov rsi, rsp
     mov rax, 1
     mov rdi, 1
@@ -20,7 +60,57 @@ _start:
     mov rax, 1
     mov rdi, 1
     mov rdx, 1
-    push 115
+    push 119
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 111
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 114
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 108
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 100
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    push 33
     mov rsi, rsp
     mov rax, 1
     mov rdi, 1
@@ -40,27 +130,6 @@ _start:
     mov rax, 1
     mov rdi, 1
     mov rdx, 1
-    push 97
-    mov rsi, rsp
-    mov rax, 1
-    mov rdi, 1
-    mov rdx, 1
-    syscall
-    pop rax
-    mov rax, 1
-    mov rdi, 1
-    mov rdx, 1
-    push 10
-    mov rsi, rsp
-    mov rax, 1
-    mov rdi, 1
-    mov rdx, 1
-    syscall
-    pop rax
-    mov rax, 1
-    mov rdi, 1
-    mov rdx, 1
-    push 5
     pop rdi
     mov rax, 60
     syscall

@@ -6,7 +6,6 @@
 
 using namespace std;
 
-int countWords(ifstream &inputFile);
 vector <string> getWords(ifstream &inputFile);
 vector <int> checkEOS(vector <string> &words);
 vector <string> getSlice(vector <string> vec, int start, int end);
