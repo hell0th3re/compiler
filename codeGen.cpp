@@ -221,12 +221,19 @@ vector <string> handleComplex(vector <string> statement) {
 //calls syntax: call call_name value
 string handleCalls(vector <string> statement) {
     stringstream code;
-
     string value = "";
+    int index = 0;
     string name = statement[1];
 
-    if (statement.size() > 2) {
+    if (!empty(statement[2])) {
         value = statement[2];
+    }
+
+
+    if (statement.size() > 3 && statement[3] == "[") {
+        index = stoi(statement[4]);
+    }
+    else if (statement.size() == 2) {
         value.pop_back();
     }
     else {
@@ -235,42 +242,45 @@ string handleCalls(vector <string> statement) {
 
     //handle getval
     if (name == "getval") {
+
         if (value.empty()) {
             cerr << "invalid syntax" << endl;
             return "";
         }
-        code << callCode(name, value);
+        code << callCode(name, value, index);
     }
 
     //handle write
     else if (name == "write") {
-        code << callCode(name, value);
+        code << callCode(name, value, index);
     }
 
     //handle exit
     else if (name == "exit") {
-        code << callCode(name, value);
+        code << callCode(name, value, index);
     }
 
     //hadle int -> char conversion
     else if (name == "toChar") {
-        code << callCode(name, value);
+        code << callCode(name, value, index);
     }
 
     return code.str();
 }
 
 
-string callCode(string name, string value) {
+string callCode(string name, string value, int index) {
     stringstream code;
 
     //pushes the variable to the top of the stack. Arg(var_name)
     if (name == "getval") {
-        code << getVal(value); //"value" here cooresponds to the variable name
+        code << getVal(value, index); //"value" here cooresponds to the variable name
+        cout << "Fwrge";
     }
 
     //writes to the console. Arg(<var_name, char>)
     else if (name == "write") {
+        cout << "hi" << endl;
         code << write(value);
     }
 
@@ -287,14 +297,20 @@ string callCode(string name, string value) {
 }
 
 //puts the variable value at the top of the stack
-string getVal(string value) {
+string getVal(string value, int index) {
     stringstream code;
 
     int pos = varMap[value];
     int offset = (varCount - pos) * 8; //calculates the needed rsp offset
 
-    code << "    mov rax, [rsp + " << offset << "]\n";
-    code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
+    if (index != 0) {
+        code << "    mov rax, [" << value << " + " << index*8 << "]\n";
+        code << "    push rax\n";
+    }
+    else {
+        code << "    mov rax, [rsp + " << offset << "]\n";
+        code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
+    }
 
     return code.str();
 }
@@ -307,7 +323,7 @@ string write(string value) {
     //so ill probably do that when im implementing functions and "write" will just be a built in function
 
     stringstream code;
-
+    cout << "Ge" << endl;
     if (value.empty()){
         code << "    mov rsi, rsp\n";
     }
@@ -323,7 +339,7 @@ string write(string value) {
         code << "    mov rsi, rsp\n";
     }
     else if (varMap.contains(value)) {
-        code << getVal(value);
+        code << getVal(value, 0);
         code << "    mov rsi, rsp\n";
 
     }
@@ -359,7 +375,7 @@ string exit(string value) {
         code << "    pop rdi\n";
     }
     else if (varMap.contains(value)) {
-        code << getVal(value);
+        code << getVal(value, 0);
         code << "    pop rdi\n";
     }
     else if (isNumber(value)) {

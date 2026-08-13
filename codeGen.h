@@ -30,9 +30,9 @@ string varCode(variant<ints, chars> userVar);
 vector <string> handleComplex(vector <string> statement);
 
 string handleCalls(vector <string> statement);
-string callCode(string name, string value);
+string callCode(string name, string value, int index);
 
-string getVal(string name);
+string getVal(string value, int index);
 string write(string value);
 string toChar();
 string exit(string value);

@@ -1,9 +1,8 @@
-let e = '4' :char;
-
 letC thename = [5, 4, 3, 2 , 1] :int ^ array;
 
-call write e;
-call write nl;
+let e = 'a' :char;
 
-call getval thename;
+call getval thename[2];
+call write;
+
 call exit 2;
