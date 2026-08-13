@@ -20,6 +20,39 @@ _start:
     mov rdx, 1
     syscall
     pop rax
+    mov rax, [rsp + 8]
+    push rax
+    pop rax
+    add rax, 48
+    push rax
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    push 10
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    mov rax, [rsp + 24]
+    push rax
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    push 10
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
     mov rax, [rsp + 32]
     push rax
     pop rdi
