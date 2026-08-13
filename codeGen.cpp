@@ -5,6 +5,8 @@
 #include <map>
 #include "codeGen.h"
 
+#include "parser.h"
+
 using namespace std;
 
 /*
@@ -39,6 +41,16 @@ int getIndexOf(vector <string> vec, string s) {
     return index;
 }
 
+// vector <string> getSlice(vector <string> vec, int start, int end) {
+//     vector <string> sliced = {};
+//     for (int i = start; i < end; i++) {
+//         sliced.push_back(vec[i]);
+//     }
+//     return sliced;
+// }
+
+
+
 bool isChar(string s) {
 
     if (s[0] == '\'' && s[2] == '\'') {
@@ -62,6 +74,8 @@ bool isNumber(string s) {
     }
     return true;
 }
+
+
 
 string handleVars(vector <string> statement) {
     //syntax: let name = value : type;
@@ -134,6 +148,75 @@ string varCode(variant <ints, chars> userVar) {
 
     return codeOut.str();
 }
+
+stringstream declCode;
+
+vector <string> handleComplex(vector <string> statement) {
+    //syntax: letC name = [element1, element2] :type_in_structure ^ type_of_structure;
+    //remember to add "^" and [] to the parser
+    varCount++;
+
+    //make it clear the address is a variable on the stack
+    string name = statement[1];
+    varMap.insert({name, varCount});
+
+    string structType = statement[statement.size() - 1];
+    structType.pop_back();
+
+    vector <string> codes = {}; //[0] = declCode; [1] = textCode;
+
+    if (structType == "array") {
+
+        stringstream codeOut;
+
+        string varType = statement[statement.size() - 3];
+
+
+        int start = getIndexOf(statement, "[");
+        int end = getIndexOf(statement, "]");
+
+        vector <string> userArr = getSlice(statement, start+1, end);
+        //saved the values from the user array in a vector
+
+        //iterate over the user array and remove the commas
+        for (int i = 0; i < userArr.size(); i++) {
+            if (userArr[i] == ",") {
+                userArr.erase(userArr.begin() + i);
+            }
+        }
+
+        if (varType == "int") {
+            //syntax: letC name = [1,23,4] :int ^ array;
+            for (int i = 0; i < userArr.size(); i++) {
+                if (!isNumber(userArr[i])) {
+                    cerr << "invalid type" << endl;
+                    return {};
+                }
+            }
+
+            declCode << "    " << name << ": resq " << userArr.size() << "\n"; //reserves space
+            codes.push_back(declCode.str());
+
+            //put the values in the .bss
+            for (int i = 0; i < userArr.size(); i++) {
+                codeOut << "    mov qword [" << name << " + " << 8*i << "], " << userArr[i] << "\n";
+            }
+
+            //loads the address to the array onto the main stack
+            codeOut << "    mov rax, " << name << "\n";
+            codeOut << "    push rax\n";
+
+            codes.push_back(codeOut.str());
+        }
+
+        // for (int i = 0; i < userArr.size(); i++) {
+        //     cout << userArr[i] << endl;
+        // }
+    }
+
+    return codes;
+}
+
 
 //calls syntax: call call_name value
 string handleCalls(vector <string> statement) {

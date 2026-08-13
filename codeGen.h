@@ -20,11 +20,14 @@ struct chars {
 };
 
 int getIndexOf(vector <string> vec, string s);
+//vector <string> getSlice(vector <string> vec, int start, int end);
 bool isChar(string s);
 bool isNumber(string s);
 
 string handleVars(vector <string> statement);
 string varCode(variant<ints, chars> userVar);
+
+vector <string> handleComplex(vector <string> statement);
 
 string handleCalls(vector <string> statement);
 string callCode(string name, string value);
@@ -33,6 +36,7 @@ string getVal(string name);
 string write(string value);
 string toChar();
 string exit(string value);
+
 
 #endif //UNTITLED_CODEGEN_H
 

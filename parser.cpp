@@ -17,8 +17,9 @@ vector<string> getWords(ifstream &inputFile) {
             current += c;
             inChar = !inChar;
         }
+
         //operators
-        else if ((c == '=' || c == ':') && !inChar) {
+        else if ((c == '=' || c == ':' || c == '[' || c == ']' || c == '^' || c == ',') && !inChar) {
             if (!current.empty()) {
                 words.push_back(current);
                 current.clear();
