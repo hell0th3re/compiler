@@ -40,13 +40,14 @@ int getIndexOf(vector <string> vec, string s) {
 }
 
 bool isChar(string s) {
-    if (s.empty()) {
-        cerr << "empty" << endl;
-        return false;
-    }
 
     if (s[0] == '\'' && s[2] == '\'') {
         return true;
+    }
+
+    if (s.empty()) {
+        cerr << "empty" << endl;
+        return false;
     }
 
     return false;
@@ -181,44 +182,13 @@ string callCode(string name, string value) {
 
     else if (name == "write") {
         //writes to the console
-
-        if (value.empty()){
-            code << "    mov rsi, rsp\n";
-        }
-        else if (isNumber(value)) {
-            int asciVal = stoi(value);
-
-            code << "    push " << asciVal << "\n";
-            code << "    mov rsi, rsp\n";
-        }
-        else if (isChar(value)) {
-            char chContents = value[1];
-            int asciConv = chContents;
-
-            code << "    push " << asciConv << "\n";
-            code << "    mov rsi, rsp\n";
-        }
-
-        else {
-            cerr << "number or var name required" << endl;
-            return "";
-        }
-
-        code << "    mov rax, 1\n";
-        code << "    mov rdi, 1\n";
-        code << "    mov rdx, 1\n"; //lenght;
-        code << "    syscall\n";
-        code << "    pop rax\n";
+        code << write(value);
 
         //putting a newline
         code << "    mov rax, 1\n";
         code << "    mov rdi, 1\n";
         code << "    mov rdx, 1\n";
 
-        code << "    push 10\n";
-        code << "    mov rsi, rsp\n";
-        code << "    syscall\n";
-        code << "    pop rax\n";
     }
 
     else if (name == "exit") {
@@ -240,6 +210,44 @@ string getVal(string value) {
 
     code << "    mov rax, [rsp + " << offset << "]\n";
     code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
+
+    return code.str();
+}
+
+string write(string value) {
+    stringstream code;
+
+    if (value.empty()){
+        code << "    mov rsi, rsp\n";
+    }
+    else if (isNumber(value)) {
+        int asciVal = stoi(value);
+
+        code << "    push " << asciVal << "\n";
+        code << "    mov rsi, rsp\n";
+    }
+    else if (isChar(value)) {
+        char chContents = value[1];
+        int asciConv = chContents;
+
+        code << "    push " << asciConv << "\n";
+        code << "    mov rsi, rsp\n";
+    }
+    else if (value == "nl") {
+        code << "    push 10\n";
+        code << "    mov rsi, rsp\n";
+    }
+
+    else {
+        cerr << "number or var name required" << endl;
+        return "";
+    }
+
+    code << "    mov rax, 1\n";
+    code << "    mov rdi, 1\n";
+    code << "    mov rdx, 1\n"; //lenght;
+    code << "    syscall\n";
+    code << "    pop rax\n";
 
     return code.str();
 }

@@ -30,6 +30,7 @@ string handleCalls(vector <string> statement);
 string callCode(string name, string value);
 
 string getVal(string name);
+string write(string value);
 
 #endif //UNTITLED_CODEGEN_H
 
