@@ -24,8 +24,8 @@ vector <string> getCode(vector <vector<string>> &statements) {
     //call handlers
     stringstream code;
     stringstream declCode;
+
     for (vector <string> &statement: statements) {
-        //getKeyword(statement);
 
         //im not sure if that would ever be the case, but wtv
         if (statement.empty()) {
@@ -39,10 +39,14 @@ vector <string> getCode(vector <vector<string>> &statements) {
         else if (statement[0] == "call") {
             code << handleCalls(statement);
         }
-        else if (statement[0] == "letC") {
-            vector <string> codes = handleComplex(statement);
+        else if (statement[0] == "arr") {
+            vector <string> codes = handleArrays(statement);
             code << codes[1];
             declCode << codes[0];
+        }
+        else {
+            cerr << "unknown type\n";
+            return {};
         }
         //other keywords here
 

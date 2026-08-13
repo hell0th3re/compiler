@@ -3,11 +3,11 @@ section .bss
 section .text
 global _start
 _start:
-    mov qword [thename + 0], 5
-    mov qword [thename + 8], 4
-    mov qword [thename + 16], 97
-    mov qword [thename + 24], 2
-    mov qword [thename + 32], 1
+    mov qword [thename + 0], 97
+    mov qword [thename + 8], 98
+    mov qword [thename + 16], 99
+    mov qword [thename + 24], 100
+    mov qword [thename + 32], 101
     mov rax, thename
     push rax
     push 97

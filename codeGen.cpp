@@ -26,7 +26,6 @@ using namespace std;
 //structs, enums in header
 
 int varCount = 0; //will be useful to determine the declared vars position in the stack
-
 map<string, int> varMap;
 
 int getIndexOf(vector <string> vec, string s) {
@@ -71,18 +70,16 @@ bool isNumber(string s) {
     return true;
 }
 
-
-
 string handleVars(vector <string> statement) {
     //syntax: let name = value : type;
-    string code;
+    stringstream code;
     varCount++;
 
     string name = statement[1]; //name needs to come right after "let"
     string value = statement[ getIndexOf(statement,"=") + 1 ]; //element after '='
-    string typeStr = statement[statement.size() - 2]; //type need to be secound to the last element
+    string type = statement[getIndexOf(statement, ":") + 1]; //element after ':'
 
-    if (name.empty() || value.empty() || typeStr.empty()) {
+    if (name.empty() || value.empty() || type.empty()) {
         cerr << "invalid syntax" << endl;
         return "";
     }
@@ -95,34 +92,38 @@ string handleVars(vector <string> statement) {
     }
 
 
-    if (typeStr == "int") {
+    if (type == "int") {
+        if (!isNumber(value)) {
+            cerr << "invalid syntax for int" << endl;
+            return "";
+        }
+
         int valueConv = stoi(value); //string to int (value)
         ints userVar(name, valueConv);
-        varCode(userVar);
-        code += varCode(userVar);
-
-        return code;
+        code << addVar(userVar);
     }
 
-    if (typeStr == "char") {
+    else if (type == "char") {
         if (!isChar(value)) {
-            cerr << "invalid syntax" << endl;
+            cerr << "invalid syntax for char" << endl;
             return "";
         }
 
         char valueConv = value[1];
         chars userVar(name, valueConv);
-        varCode(userVar);
-        code += varCode(userVar);
-
-        return code;
+        addVar(userVar);
+        code << addVar(userVar);
     }
 
-    cerr << "undefined type" << endl;
-    return "";
+    else {
+        cerr << "undefined type" << endl;
+        return "";
+    }
+
+    return code.str();
 }
 
-string varCode(variant <ints, chars> userVar) {
+string addVar(variant <ints, chars> userVar) {
     stringstream codeOut;
 
     if (holds_alternative<ints>(userVar)) {
@@ -142,65 +143,102 @@ string varCode(variant <ints, chars> userVar) {
     return codeOut.str();
 }
 
-stringstream declCode;
+vector <string> handleArrays(vector <string> statement) {
 
-vector <string> handleComplex(vector <string> statement) {
+    //syntax: letC name = [element1, element2] :type;
+    //add the address as a variable on the stack
+    stringstream codeOut;
+    stringstream declCode;
 
-    //syntax: letC name = [element1, element2] :type_in_structure ^ type_of_structure;
-    //remember to add "^" and [] to the parser
-    varCount++;
-    //make it clear the address is a variable on the stack
     string name = statement[1];
+    string varType = statement[getIndexOf(statement, ":") + 1];
+
+    int start = getIndexOf(statement, "[");
+    int end = getIndexOf(statement, "]");
+
+    vector <string> userArr = getSlice(statement, start+1, end); //value
+
+    //iterate over the user array and remove the commas
+    for (int i = 0; i < userArr.size(); i++) {
+        if (userArr[i] == ",") {
+            userArr.erase(userArr.begin() + i);
+        }
+    }
+
+    varCount++;
     varMap.insert({name, varCount});
 
-    string structType = statement[statement.size() - 2];
-
     vector <string> codes = {}; //[0] = declCode; [1] = textCode;
-    if (structType == "array") {
 
-        stringstream codeOut;
+    if (varType == "int") {
+        codes = addArray(userArr, name, varType);
+    }
+    else if (varType == "char") {
+        codes = addArray(userArr, name, varType);
+    }
 
-        string varType = statement[statement.size() - 4];
 
+    return codes;
+}
 
-        int start = getIndexOf(statement, "[");
-        int end = getIndexOf(statement, "]");
+vector <string> addArray(vector <string> userArr, string name, string varType) {
 
-        vector <string> userArr = getSlice(statement, start+1, end);
-        //saved the values from the user array in a vector
+    vector <string> codes = {};
+    stringstream codeOut;
+    stringstream declCode;
 
-        //iterate over the user array and remove the commas
+    if (varType == "int") {
+
         for (int i = 0; i < userArr.size(); i++) {
-            if (userArr[i] == ",") {
-                userArr.erase(userArr.begin() + i);
+            if (!isNumber(userArr[i])) {
+                cerr << "invalid type" << endl;
+                return {};
             }
         }
 
-        if (varType == "int") {
+        declCode << "    " << name << ": resq " << userArr.size() << "\n"; //reserves space
+        codes.push_back(declCode.str());
 
-            //syntax: letC name = [1,23,4] :int ^ array;
-            for (int i = 0; i < userArr.size(); i++) {
-                if (!isNumber(userArr[i])) {
-                    cerr << "invalid type" << endl;
-                    return {};
-                }
-            }
-
-            declCode << "    " << name << ": resq " << userArr.size() << "\n"; //reserves space
-            codes.push_back(declCode.str());
-
-            //put the values in the .bss
-            for (int i = 0; i < userArr.size(); i++) {
-                codeOut << "    mov qword [" << name << " + " << 8*i << "], " << userArr[i] << "\n";
-            }
-
-            //loads the address to the array onto the main stack
-            codeOut << "    mov rax, " << name << "\n";
-            codeOut << "    push rax\n";
-
-            codes.push_back(codeOut.str());
+        //put the values in the .bss
+        for (int i = 0; i < userArr.size(); i++) {
+            codeOut << "    mov qword [" << name << " + " << 8*i << "], " << userArr[i] << "\n";
         }
 
+        //loads the address to the array onto the main stack
+        codeOut << "    mov rax, " << name << "\n";
+        codeOut << "    push rax\n";
+
+        codes.push_back(codeOut.str());
+
+    }
+
+    else if (varType == "char") {
+        vector <int> vec;
+        for (int i = 0; i < userArr.size(); i++) {
+            char buffer = userArr[i][1];
+            int conv = buffer; //conv to ascii
+            vec.push_back(conv);
+        }
+
+        declCode << "    " << name << ": resq " << vec.size() << "\n"; //reserves space
+        codes.push_back(declCode.str());
+
+        //put the values in the .bss
+        for (int i = 0; i < vec.size(); i++) {
+            codeOut << "    mov qword [" << name << " + " << 8*i << "], " << vec[i] << "\n";
+        }
+
+        //loads the address to the array onto the main stack
+        codeOut << "    mov rax, " << name << "\n";
+        codeOut << "    push rax\n";
+
+        codes.push_back(codeOut.str());
+
+    }
+
+    else {
+        cerr << "unknown type" << endl;
+        return {};
     }
 
     return codes;

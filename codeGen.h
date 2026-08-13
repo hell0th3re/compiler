@@ -26,9 +26,10 @@ bool isNumber(string s);
 
 string handleVars(vector <string> statement);
 vector <string> getSlice(vector <string> vec, int start, int end);
-string varCode(variant<ints, chars> userVar);
+string addVar(variant<ints, chars> userVar);
 
-vector <string> handleComplex(vector <string> statement);
+vector <string> handleArrays(vector <string> statement);
+vector <string> addArray(vector <string> userArr, string name, string varType);
 
 string handleCalls(vector <string> statement);
 string callCode(string name, string value, int index);

@@ -1,4 +1,4 @@
-letC thename = [5, 4, 97, 2 , 1] :int ^ array;
+arr thename = ['a', 'b', 'c', 'd' , 'e'] :char;
 
 let e = 'a' :char;
 

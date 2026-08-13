@@ -45,8 +45,6 @@ vector<string> getWords(ifstream &inputFile) {
     return words;
 }
 
-
-
 //splits the words into statements and returns a vector of them
 vector<vector<string>> getStatements(vector<string>& words) {
     vector<vector<string>> statements;
