@@ -28,6 +28,8 @@ string handleVars(vector <string> statement);
 vector <string> getSlice(vector <string> vec, int start, int end);
 string addVar(variant<ints, chars> userVar);
 
+string handleExpresions (vector <string> expresion, string name);
+
 vector <string> handleArrays(vector <string> statement);
 vector <string> addArray(vector <string> userArr, string name, string varType);
 

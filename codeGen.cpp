@@ -79,6 +79,17 @@ string handleVars(vector <string> statement) {
     string value = statement[ getIndexOf(statement,"=") + 1 ]; //element after '='
     string type = statement[getIndexOf(statement, ":") + 1]; //element after ':'
 
+    //statements
+    if (value == "(") {
+
+        int open = getIndexOf(statement, "(");
+        int close = getIndexOf(statement, ")");
+        vector <string> expresion = getSlice(statement, open+1, close);
+
+        code << handleExpresions(expresion, name);
+        return code.str();
+    }
+
     if (name.empty() || value.empty() || type.empty()) {
         cerr << "invalid syntax" << endl;
         return "";
@@ -91,8 +102,12 @@ string handleVars(vector <string> statement) {
         }
     }
 
+    if (varMap.contains(value)) {
+        code << getVal(value, 0);
+        code << "    mov rsi, rsp\n";
+    }
 
-    if (type == "int") {
+    else if (type == "int") {
         if (!isNumber(value)) {
             cerr << "invalid syntax for int" << endl;
             return "";
@@ -141,6 +156,27 @@ string addVar(variant <ints, chars> userVar) {
     }
 
     return codeOut.str();
+}
+
+string handleExpresions (vector <string> expresion, string name) {
+    stringstream code;
+
+    string val1S = expresion[0];
+    string operationS = expresion[1];
+    string val2S = expresion[2];
+
+    int val1 = stoi(val1S);
+    int val2 = stoi(val2S);
+    char operation = operationS[0];
+
+    if (operation == '+') {
+        code << "    mov rax, " << val1 << "\n";
+        code << "    add rax, " << val2 << "\n";
+        code << "    push rax" << "\n";
+        varMap.insert({name, varCount});
+    }
+
+    return code.str();
 }
 
 vector <string> handleArrays(vector <string> statement) {
@@ -244,7 +280,6 @@ vector <string> addArray(vector <string> userArr, string name, string varType) {
     return codes;
 }
 
-
 //calls syntax: call call_name value
 string handleCalls(vector <string> statement) {
     stringstream code;
@@ -257,6 +292,7 @@ string handleCalls(vector <string> statement) {
         if (!empty(statement[2])) {
             value = statement[2];
         }
+
     }
     if (statement.size() > 3 && statement[3] == "[") {
         index = stoi(statement[4]);
@@ -289,7 +325,6 @@ string handleCalls(vector <string> statement) {
 
     return code.str();
 }
-
 
 string callCode(string name, string value, int index) {
     stringstream code;
@@ -411,3 +446,5 @@ string exit(string value) {
 
     return code.str();
 }
+
+//cant assign vars to other vars

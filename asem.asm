@@ -1,17 +1,11 @@
 section .bss
-    thename: resq 5
 section .text
 global _start
 _start:
-    mov qword [thename + 0], 97
-    mov qword [thename + 8], 98
-    mov qword [thename + 16], 99
-    mov qword [thename + 24], 100
-    mov qword [thename + 32], 101
-    mov rax, thename
+    mov rax, 90
+    add rax, 9
     push rax
-    push 97
-    mov rax, [thename + 16]
+    mov rax, [rsp + 0]
     push rax
     mov rsi, rsp
     mov rax, 1

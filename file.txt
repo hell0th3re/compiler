@@ -1,9 +1,5 @@
-arr thename = ['a', 'b', 'c', 'd' , 'e'] :char;
-
-let e = 'a' :char;
-
-call getval thename[2];
-call write;
+let a = (90+9) :int;
+call write a;
 call write nl;
 
 call exit 2;
