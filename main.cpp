@@ -56,6 +56,7 @@ vector <string> getCode(vector <vector<string>> &statements) {
 string codeGen(vector <vector<string>> &statements) {
     stringstream codeOut;
     vector <string> codes = getCode(statements);
+    cout << " ";
 
     //complex datatypes
     codeOut << "section .bss\n";
@@ -74,6 +75,7 @@ int main() {
 
     vector <string> words = getWords(inputFile);
     vector <vector<string>> statements = getStatements(words);
+    cout << " ";
 
     inputFile.close();
 
@@ -81,5 +83,3 @@ int main() {
 
     return 0;
 }
-
-//

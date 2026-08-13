@@ -5,8 +5,6 @@
 #include <map>
 #include "codeGen.h"
 
-#include "parser.h"
-
 using namespace std;
 
 /*
@@ -41,15 +39,13 @@ int getIndexOf(vector <string> vec, string s) {
     return index;
 }
 
-// vector <string> getSlice(vector <string> vec, int start, int end) {
-//     vector <string> sliced = {};
-//     for (int i = start; i < end; i++) {
-//         sliced.push_back(vec[i]);
-//     }
-//     return sliced;
-// }
-
-
+vector <string> getSlice(vector <string> vec, int start, int end) {
+    vector <string> sliced = {};
+    for (int i = start; i < end; i++) {
+        sliced.push_back(vec[i]);
+    }
+    return sliced;
+}
 
 bool isChar(string s) {
 
@@ -84,9 +80,7 @@ string handleVars(vector <string> statement) {
 
     string name = statement[1]; //name needs to come right after "let"
     string value = statement[ getIndexOf(statement,"=") + 1 ]; //element after '='
-    string typeStr = statement[statement.size() - 1]; //type need to be the last element
-
-    typeStr.pop_back(); //remove semi
+    string typeStr = statement[statement.size() - 2]; //type need to be secound to the last element
 
     if (name.empty() || value.empty() || typeStr.empty()) {
         cerr << "invalid syntax" << endl;
@@ -111,7 +105,6 @@ string handleVars(vector <string> statement) {
     }
 
     if (typeStr == "char") {
-        //char valueConv = value[0]; //implicit conversion from string to char (in my lang not c++)
         if (!isChar(value)) {
             cerr << "invalid syntax" << endl;
             return "";
@@ -152,24 +145,22 @@ string varCode(variant <ints, chars> userVar) {
 stringstream declCode;
 
 vector <string> handleComplex(vector <string> statement) {
+
     //syntax: letC name = [element1, element2] :type_in_structure ^ type_of_structure;
     //remember to add "^" and [] to the parser
     varCount++;
-
     //make it clear the address is a variable on the stack
     string name = statement[1];
     varMap.insert({name, varCount});
 
-    string structType = statement[statement.size() - 1];
-    structType.pop_back();
+    string structType = statement[statement.size() - 2];
 
     vector <string> codes = {}; //[0] = declCode; [1] = textCode;
-
     if (structType == "array") {
 
         stringstream codeOut;
 
-        string varType = statement[statement.size() - 3];
+        string varType = statement[statement.size() - 4];
 
 
         int start = getIndexOf(statement, "[");
@@ -186,6 +177,7 @@ vector <string> handleComplex(vector <string> statement) {
         }
 
         if (varType == "int") {
+
             //syntax: letC name = [1,23,4] :int ^ array;
             for (int i = 0; i < userArr.size(); i++) {
                 if (!isNumber(userArr[i])) {
@@ -209,9 +201,6 @@ vector <string> handleComplex(vector <string> statement) {
             codes.push_back(codeOut.str());
         }
 
-        // for (int i = 0; i < userArr.size(); i++) {
-        //     cout << userArr[i] << endl;
-        // }
     }
 
     return codes;
@@ -225,19 +214,14 @@ string handleCalls(vector <string> statement) {
     int index = 0;
     string name = statement[1];
 
-    if (!empty(statement[2])) {
-        value = statement[2];
+
+    if (statement.size() > 3) {
+        if (!empty(statement[2])) {
+            value = statement[2];
+        }
     }
-
-
     if (statement.size() > 3 && statement[3] == "[") {
         index = stoi(statement[4]);
-    }
-    else if (statement.size() == 2) {
-        value.pop_back();
-    }
-    else {
-        name.pop_back();
     }
 
     //handle getval
@@ -275,12 +259,10 @@ string callCode(string name, string value, int index) {
     //pushes the variable to the top of the stack. Arg(var_name)
     if (name == "getval") {
         code << getVal(value, index); //"value" here cooresponds to the variable name
-        cout << "Fwrge";
     }
 
     //writes to the console. Arg(<var_name, char>)
     else if (name == "write") {
-        cout << "hi" << endl;
         code << write(value);
     }
 
@@ -302,8 +284,8 @@ string getVal(string value, int index) {
 
     int pos = varMap[value];
     int offset = (varCount - pos) * 8; //calculates the needed rsp offset
-
     if (index != 0) {
+
         code << "    mov rax, [" << value << " + " << index*8 << "]\n";
         code << "    push rax\n";
     }
@@ -323,7 +305,6 @@ string write(string value) {
     //so ill probably do that when im implementing functions and "write" will just be a built in function
 
     stringstream code;
-    cout << "Ge" << endl;
     if (value.empty()){
         code << "    mov rsi, rsp\n";
     }

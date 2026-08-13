@@ -25,6 +25,7 @@ bool isChar(string s);
 bool isNumber(string s);
 
 string handleVars(vector <string> statement);
+vector <string> getSlice(vector <string> vec, int start, int end);
 string varCode(variant<ints, chars> userVar);
 
 vector <string> handleComplex(vector <string> statement);
