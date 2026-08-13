@@ -20,6 +20,22 @@ _start:
     mov rdx, 1
     syscall
     pop rax
+    mov rax, 100
+    add rax, 1
+    push rax
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
+    push 10
+    mov rsi, rsp
+    mov rax, 1
+    mov rdi, 1
+    mov rdx, 1
+    syscall
+    pop rax
     push 2
     pop rdi
     mov rax, 60

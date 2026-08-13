@@ -2,4 +2,7 @@ let a = (90+9) :int;
 call write a;
 call write nl;
 
+call write (100+1);
+call write nl;
+
 call exit 2;

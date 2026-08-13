@@ -9,6 +9,17 @@ enum types {
     _char
 };
 
+enum type_ {
+    var_decl,
+    call
+};
+
+struct expr {
+    type_ id;
+    string name;
+    vector <string> content;
+};
+
 struct ints {
     string name;
     int value;
@@ -28,7 +39,7 @@ string handleVars(vector <string> statement);
 vector <string> getSlice(vector <string> vec, int start, int end);
 string addVar(variant<ints, chars> userVar);
 
-string handleExpresions (vector <string> expresion, string name);
+string handleExpresions (expr expr);
 
 vector <string> handleArrays(vector <string> statement);
 vector <string> addArray(vector <string> userArr, string name, string varType);

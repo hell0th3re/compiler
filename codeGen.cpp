@@ -86,7 +86,9 @@ string handleVars(vector <string> statement) {
         int close = getIndexOf(statement, ")");
         vector <string> expresion = getSlice(statement, open+1, close);
 
-        code << handleExpresions(expresion, name);
+        expr expr = {var_decl, name, expresion};
+
+        code << handleExpresions(expr);
         return code.str();
     }
 
@@ -158,9 +160,9 @@ string addVar(variant <ints, chars> userVar) {
     return codeOut.str();
 }
 
-string handleExpresions (vector <string> expresion, string name) {
+string handleExpresions (expr expr) {
     stringstream code;
-
+    vector <string> expresion = expr.content;
     string val1S = expresion[0];
     string operationS = expresion[1];
     string val2S = expresion[2];
@@ -169,12 +171,31 @@ string handleExpresions (vector <string> expresion, string name) {
     int val2 = stoi(val2S);
     char operation = operationS[0];
 
-    if (operation == '+') {
-        code << "    mov rax, " << val1 << "\n";
-        code << "    add rax, " << val2 << "\n";
-        code << "    push rax" << "\n";
-        varMap.insert({name, varCount});
+    if (expr.id == var_decl) {
+        if (operation == '+') {
+            code << "    mov rax, " << val1 << "\n";
+            code << "    add rax, " << val2 << "\n";
+            code << "    push rax" << "\n";
+            varMap.insert({expr.name, varCount});
+        }
     }
+    else if (expr.id == call) {
+        if (operation == '+') {
+            code << "    mov rax, " << val1 << "\n";
+            code << "    add rax, " << val2 << "\n";
+            code << "    push rax" << "\n";
+            //write
+            if (expr.name == "write") {
+                code << "    mov rsi, rsp\n";
+                code << "    mov rax, 1\n";
+                code << "    mov rdi, 1\n";
+                code << "    mov rdx, 1\n"; //lenght;
+                code << "    syscall\n";
+                code << "    pop rax\n";
+            }
+        }
+    }
+
 
     return code.str();
 }
@@ -288,6 +309,8 @@ string handleCalls(vector <string> statement) {
     string name = statement[1];
 
 
+
+
     if (statement.size() > 3) {
         if (!empty(statement[2])) {
             value = statement[2];
@@ -310,6 +333,17 @@ string handleCalls(vector <string> statement) {
 
     //handle write
     else if (name == "write") {
+        //statements
+        if (value == "(") {
+
+            int open = getIndexOf(statement, "(");
+            int close = getIndexOf(statement, ")");
+            vector <string> expresion = getSlice(statement, open+1, close);
+            expr expr = {call, name, expresion};
+            code << handleExpresions(expr);
+            return code.str();
+        }
+
         code << callCode(name, value, index);
     }
 
@@ -378,6 +412,7 @@ string write(string value) {
     //so ill probably do that when im implementing functions and "write" will just be a built in function
 
     stringstream code;
+
     if (value.empty()){
         code << "    mov rsi, rsp\n";
     }
