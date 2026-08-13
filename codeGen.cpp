@@ -144,6 +144,7 @@ string handleCalls(vector <string> statement) {
     string value = "";
     string name = statement[1];
 
+
     if (statement.size() > 2) {
         value = statement[2];
         value.pop_back();
@@ -151,7 +152,6 @@ string handleCalls(vector <string> statement) {
     else {
         name.pop_back();
     }
-
 
     //handle getval
     if (name == "getval") {
@@ -162,18 +162,35 @@ string handleCalls(vector <string> statement) {
 
         code << callCode(name, value);
     }
+
+    //handle write
     else if (name == "write") {
         code << callCode(name, value);
     }
+
     //handle exit
     else if (name == "exit") {
-        if (value.empty()) {
-            cerr << "invalid syntax" << endl;
-            return "";
-        }
-
         code << callCode(name, value);
     }
+
+    return code.str();
+}
+
+string getVal(string value) { //value here cooresponds to the variable name
+    varMapRev = varMap;
+    stringstream code;
+
+    for (auto &[name_, value_] : varMapRev) {
+        value_ = varMapRev.size() - value_ + 1;
+    }
+
+    int posRev = varMapRev[value]; //should return reverse position varCount (last ones first)
+
+    //(position on the stack starting from 1 for the first var)
+    int offset = (posRev-1)*8; //calculates the bytes for the needed rsp offset
+
+    code << "    mov rax, [rsp + " << offset << "]\n";
+    code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
 
     return code.str();
 }
@@ -182,59 +199,33 @@ string callCode(string name, string value) {
     stringstream code;
 
     if (name == "getval") {
+        code << getVal(value);
         //gets the desired variable to the top of the stack
 
-        for (size_t i = 0; i < value.size(); i++) {
-            if (!isalpha(value[i])) {
-                cerr << "need a variable to get" << endl;
-                return "";
-            }
-        }
-
-        varMapRev = varMap;
-
-        for (auto &[name, value] : varMapRev) {
-            value = varMapRev.size() - value + 1;
-        }
-
-        int posRev = varMapRev[value]; //should return reverse position varCount (last ones first)
-
-        //(position on the stack starting from 1 for the first var)
-        int offset = (posRev-1)*8; //calculates the bytes for the needed rsp offset
-
-        code << "    mov rax, [rsp + " << offset << "]\n";
-        code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
-    }
-
-    else if (name == "exit") {
-        //exits
-        //add the getval a; exit; thing like with write;
-        string errNr = value;
-
-        bool isVar = false;
-        bool isDigit = true;
-
-        if (varMap[errNr]) { //if its a variable name
-            isVar = true;
-        }
-
-        if (!isVar && !isDigit) {
-            cerr << "unknown identifier" << endl;
-            return "";
-        }
-
-        if (isVar) {
-            code << "    pop rdi\n";
-        }
-        else if (isDigit) {
-            code << "    mov rdi, " << errNr << "\n";
-        }
-
-        code << "    mov rax, 60\n";
-        code << "    syscall\n";
+        // for (size_t i = 0; i < value.size(); i++) {
+        //     if (!isalpha(value[i])) {
+        //         cerr << "need a variable to get" << endl;
+        //         return "";
+        //     }
+        // }
+        //
+        // varMapRev = varMap;
+        //
+        // for (auto &[name, value_] : varMapRev) {
+        //     value_ = varMapRev.size() - value_ + 1;
+        // }
+        //
+        // int posRev = varMapRev[value]; //should return reverse position varCount (last ones first)
+        //
+        // //(position on the stack starting from 1 for the first var)
+        // int offset = (posRev-1)*8; //calculates the bytes for the needed rsp offset
+        //
+        // code << "    mov rax, [rsp + " << offset << "]\n";
+        // code << "    push rax\n"; //this might just be copying the value idk. possible stack overflow (W &)
     }
 
     else if (name == "write") {
+        //writes to the console
 
         if (varMap[value] || value.empty()) {
             code << "    mov rsi, rsp\n";
@@ -271,7 +262,49 @@ string callCode(string name, string value) {
         code << "    push 10\n";
         code << "    mov rsi, rsp\n";
         code << "    syscall\n";
+        code << "    pop rax\n";
+    }
+
+    else if (name == "exit") {
+        //exits
+        //add the getval a; exit; thing like with write;
+        // string errNr = value;
+        //
+        // bool isVar = false;
+        // bool isDigit = true;
+        // bool isEmpty = false;
+        //
+        // if (errNr.empty()) {
+        //     isEmpty = true;
+        //     isDigit = false;
+        //     isVar = false;
+        // }
+        // else if (varMap[errNr]) { //if its a variable name
+        //     isVar = true;
+        //     isEmpty = false;
+        //     isDigit = false;
+        // }//code << "    pop rdi\n";
+        // else if (isNumber(errNr)) {
+        //     isDigit = true;
+        //     isVar = false;
+        //     isEmpty = false;
+        // }
+        // else {
+        //     cerr << "unknown identifier" << endl;
+        //     return "";
+        // }
+        //
+        // if (isDigit) {
+        //     code << "    mov rdi, " << errNr << "\n";
+        // }
+        // else if (isVar || isEmpty) {
+        //     code << "    pop rdi\n";
+        // }
+        code << "    pop rdi\n";
+        code << "    mov rax, 60\n";
+        code << "    syscall\n";
     }
 
     return code.str();
 }
+

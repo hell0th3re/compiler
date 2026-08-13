@@ -27,6 +27,9 @@ string handleVars(vector <string> statement);
 string varCode(variant<ints, chars> userVar);
 
 string handleCalls(vector <string> statement);
+
+string getVal(string name);
+
 string callCode(string name, string value);
 
 #endif //UNTITLED_CODEGEN_H

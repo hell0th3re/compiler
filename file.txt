@@ -1,5 +1,9 @@
-let a = 5 : int;
+let l = 'd' : char;
 let b = 'c' : char;
-call write 's';
-call getval a;
-call exit a;
+let h = 3 : int;
+call getval b;
+call write;
+call getval l;
+call write;
+call getval h;
+call exit;
