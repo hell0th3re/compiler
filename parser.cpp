@@ -5,42 +5,72 @@
 
 using namespace std;
 
-int countWords(ifstream &inputFile) {
+// int countWords(ifstream &inputFile) {
+//
+//     int wordCount = 0;
+//
+//     if (inputFile.is_open()) {
+//         string line;
+//
+//         while (getline(inputFile, line)) {
+//             stringstream ss(line);
+//             string word;
+//
+//             while (ss >> word) {
+//                 wordCount++;
+//             }
+//         }
+//
+//     }
+//
+//     return wordCount;
+// }
 
-    int wordCount = 0;
+// vector <string> getWords(ifstream &inputFile) {
+//     vector <string> words = {};
+//
+//     int lenght = countWords(inputFile); //counts the words, and with that gets to the eof
+//
+//     //Alternative to closing and opening the file again. It goes back to the first position to get words
+//     //after already getting the specified length
+//     inputFile.clear();
+//     inputFile.seekg(0);
+//
+//     for (int i = 0; i < lenght; i++) {
+//         string buff;
+//
+//         inputFile >> buff;
+//         words.push_back(buff);
+//     }
+//
+//     return words;
+// }
 
-    if (inputFile.is_open()) {
-        string line;
+//switched the tokeniser to use next chars not next whitespace so you can actually write a space in a char
+vector<string> getWords(ifstream &inputFile) {
+    vector<string> words;
+    string current;
+    char c;
+    bool inChar = false;
 
-        while (getline(inputFile, line)) {
-            stringstream ss(line);
-            string word;
-
-            while (ss >> word) {
-                wordCount++;
+    while (inputFile.get(c)) {
+        if (c == '\'') {
+            current += c;
+            inChar = !inChar;
+        }
+        else if (isspace(static_cast<unsigned char>(c)) && !inChar) {
+            if (!current.empty()) {
+                words.push_back(current);
+                current.clear();
             }
         }
-
+        else {
+            current += c;
+        }
     }
 
-    return wordCount;
-}
-
-vector <string> getWords(ifstream &inputFile) {
-    vector <string> words = {};
-
-    int lenght = countWords(inputFile); //counts the words, and with that gets to the eof
-
-    //Alternative to closing and opening the file again. It goes back to the first position to get words
-    //after already getting the specified length
-    inputFile.clear();
-    inputFile.seekg(0);
-
-    for (int i = 0; i < lenght; i++) {
-        string buff;
-
-        inputFile >> buff;
-        words.push_back(buff);
+    if (!current.empty()) {
+        words.push_back(current);
     }
 
     return words;

@@ -1,6 +1,8 @@
 call write 't';
-call write 's';
 call write ' ';
+call write 's';
+call write nl;
+call write 'a';
 call write nl;
 
 let a = 5 : int;

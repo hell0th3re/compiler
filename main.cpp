@@ -64,10 +64,6 @@ int main() {
     ifstream inputFile("../file.txt");
 
     vector <string> words = getWords(inputFile);
-    for (int i = 0; i < words.size(); i++) {
-        cout << words[i] << "\n";
-    }
-    cout << "testing" << endl;
     vector <vector<string>> statements = getStatements(words);
 
     inputFile.close();
