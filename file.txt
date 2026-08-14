@@ -1,8 +1,12 @@
-let a = (90+9) :int;
-call write a;
+let a = 'a' :char;
+let b = 'b' :char;
+let c = a :char;
+let d = 2 :int;
+
+call write c;
 call write nl;
 
-call write (100+1);
+call write b;
 call write nl;
 
 call exit 2;

@@ -92,6 +92,30 @@ string handleVars(vector <string> statement) {
         return code.str();
     }
 
+    //copy a value of another variable
+
+    //if (value == "*") {
+    //the variable name that its copying
+    value = statement[getIndexOf(statement, value)];
+    cout << " ";
+    if (varMap.contains(value)) {
+        cout << " ";;
+
+        //code << addPtrVar()
+        code << getVal(value, 0); //remreber to add to parser
+        varMap.insert({name, varCount}); //this should be happening in addVar()
+
+        //"type" would be a userful property of a variable to have saved, so you can assign the value
+        //of the variable pointed to, to the pointer variable
+        cout << " ";
+        // code << "    mov rax, rsp\n";
+        // code << "    push rax" << "\n";
+
+        return code.str();
+    }
+
+
+
     if (name.empty() || value.empty() || type.empty()) {
         cerr << "invalid syntax" << endl;
         return "";
@@ -104,12 +128,14 @@ string handleVars(vector <string> statement) {
         }
     }
 
+
     if (varMap.contains(value)) {
         code << getVal(value, 0);
         code << "    mov rsi, rsp\n";
+        return code.str();
     }
 
-    else if (type == "int") {
+    if (type == "int") {
         if (!isNumber(value)) {
             cerr << "invalid syntax for int" << endl;
             return "";
@@ -160,6 +186,7 @@ string addVar(variant <ints, chars> userVar) {
     return codeOut.str();
 }
 
+
 string handleExpresions (expr expr) {
     stringstream code;
     vector <string> expresion = expr.content;
@@ -199,6 +226,8 @@ string handleExpresions (expr expr) {
 
     return code.str();
 }
+
+
 
 vector <string> handleArrays(vector <string> statement) {
 
@@ -386,10 +415,29 @@ string callCode(string name, string value, int index) {
 }
 
 //puts the variable value at the top of the stack
-string getVal(string value, int index) {
+string getVal(string value, int index) { //default ptr ("") set in header file
+    cout << " ";
     stringstream code;
+    if (varMap.contains(value) && !isChar(value)) {
+
+        cout << " ";
+
+        int pos = varMap[value] + 1; //variable not yet declaraed
+        int offset = (varCount - pos) * 8;
+
+        code << "    mov rax, [rsp + " << offset << "]\n";
+        code << "    push rax\n";
+        cout << " ";
+        return code.str();
+    }
+    else {
+        cerr << "no variable provided" << endl;
+        return "";
+    }
+    cout << " ";
 
     int pos = varMap[value];
+    cout << pos << endl;
     int offset = (varCount - pos) * 8; //calculates the needed rsp offset
     if (index != 0) {
 
